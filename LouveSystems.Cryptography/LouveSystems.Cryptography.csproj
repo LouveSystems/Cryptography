@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0; net472</TargetFrameworks>
+    <ApplicationIcon></ApplicationIcon>
+  </PropertyGroup>
+
+</Project>
