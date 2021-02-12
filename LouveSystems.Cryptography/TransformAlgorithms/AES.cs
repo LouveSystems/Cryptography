@@ -35,10 +35,8 @@ namespace LouveSystems.Cryptography
             aes.IV = key.GetBytes(aes.BlockSize / 8);
             aes.Padding = PaddingMode.PKCS7;
 
-#if !NETCOREAPP3_1
             // Very important! Prevents watermark attacks & blazing fast. Do not use another CipherMode.
             aes.Mode = CipherMode.CFB;
-#endif
         }
 
         public byte[] Encode(string input)
@@ -80,9 +78,12 @@ namespace LouveSystems.Cryptography
         {
             try
             {
-                using (BinaryReader reader = new BinaryReader(inputStream))
-                {
+                using (BinaryReader reader = new BinaryReader(inputStream)) {
+#if NET471
+                var cs = new CryptoStream(inputStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
+#else
                     using (var cs = new CryptoStream(outputStream, aes.CreateEncryptor(), CryptoStreamMode.Write, leaveOpen: true))
+#endif
                     {
                         if (length.HasValue)
                         {
@@ -102,6 +103,9 @@ namespace LouveSystems.Cryptography
                             }
                         }
                     }
+#if NET471
+                    cs.FlushFinalBlock();
+#endif
                 }
             }
             catch (IOException e)
@@ -118,7 +122,11 @@ namespace LouveSystems.Cryptography
         {
             using (BinaryWriter writer = new BinaryWriter(outputStream, Encoding.UTF8, leaveOpen:true))
             {
-                using (var cs = new CryptoStream(inputStream, aes.CreateDecryptor(), CryptoStreamMode.Read, leaveOpen:true))
+#if NET471
+                var cs = new CryptoStream(inputStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
+#else
+                using (var cs = new CryptoStream(inputStream, aes.CreateDecryptor(), CryptoStreamMode.Read, leaveOpen: true))
+#endif
                 {
                     if (length.HasValue)
                     {
@@ -140,6 +148,9 @@ namespace LouveSystems.Cryptography
                             }
                         }
                     }
+#if NET471
+                    ////cs.FlushFinalBlock();
+#endif
                 }
             }
 

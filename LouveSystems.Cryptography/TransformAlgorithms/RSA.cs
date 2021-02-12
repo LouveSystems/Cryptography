@@ -13,18 +13,18 @@ namespace LouveSystems.Cryptography
         
         private const ushort BINARY_BUFFER_LENGTH = 1024;
 
-        private bool isReadOnly = false;
+        private bool isWriteOnly = false;
         private RSAParameters privateKey;
         private RSACryptoServiceProvider csp;
 
         public class WrongKeyException : Exception { public WrongKeyException(string msg) : base(msg) { } }
         public class ConfigurationMismatchException : Exception { public ConfigurationMismatchException(string msg) : base(msg) { } }
 
-        public RSA(string keyToImport = null, bool isDecryptOnly = true)
+        public RSA(string keyToImport = null, bool isEncryptOnly = true)
         {
             if (keyToImport != null)
             {
-                isReadOnly = isDecryptOnly;
+                isWriteOnly = isEncryptOnly;
                 csp = new RSACryptoServiceProvider();
                 csp.FromXmlString(keyToImport);
             }
@@ -32,7 +32,7 @@ namespace LouveSystems.Cryptography
             {
                 //lets take a new CSP with a new 2048 bit rsa key pair
                 csp = new RSACryptoServiceProvider(2048);
-                isReadOnly = false;
+                isWriteOnly = false;
                 privateKey = csp.ExportParameters(true);
             }
 
@@ -51,9 +51,9 @@ namespace LouveSystems.Cryptography
 
         public string Decode(byte[] obj)
         {
-            if (isReadOnly)
+            if (isWriteOnly)
             {
-                throw new ConfigurationMismatchException("Cannot decrypt with a READ ONLY encrypter");
+                throw new ConfigurationMismatchException("Cannot decrypt with a WRITE ONLY encrypter");
             }
 
             byte[] bytesPlainTextData;
@@ -103,9 +103,9 @@ namespace LouveSystems.Cryptography
 
         public bool Decode(Stream inputStream, Stream outputStream, int? length = null)
         {
-            if (isReadOnly)
+            if (isWriteOnly)
             {
-                throw new ConfigurationMismatchException("Cannot decrypt with a READ ONLY encrypter");
+                throw new ConfigurationMismatchException("Cannot decrypt with a WRITE ONLY encrypter");
             }
 
             byte[] bytesPlainTextData;
