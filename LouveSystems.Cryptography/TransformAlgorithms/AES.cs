@@ -80,7 +80,9 @@ namespace LouveSystems.Cryptography
             {
                 using (BinaryReader reader = new BinaryReader(inputStream)) {
 #if NET471
-                var cs = new CryptoStream(inputStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
+                    MemoryStream net471MS;
+                    using (net471MS = new MemoryStream()){
+                        using (var cs = new CryptoStream(net471MS, aes.CreateEncryptor(), CryptoStreamMode.Write))
 #else
                     using (var cs = new CryptoStream(outputStream, aes.CreateEncryptor(), CryptoStreamMode.Write, leaveOpen: true))
 #endif
@@ -104,7 +106,11 @@ namespace LouveSystems.Cryptography
                         }
                     }
 #if NET471
-                    cs.FlushFinalBlock();
+                        // Reopening stream to read...
+                        using (var net471MS2 = new MemoryStream(net471MS.ToArray())){
+                            net471MS2.CopyTo(outputStream);
+                        }
+                    }
 #endif
                 }
             }
@@ -122,11 +128,13 @@ namespace LouveSystems.Cryptography
         {
             using (BinaryWriter writer = new BinaryWriter(outputStream, Encoding.UTF8, leaveOpen:true))
             {
-#if NET471
-                var cs = new CryptoStream(inputStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
-#else
-                using (var cs = new CryptoStream(inputStream, aes.CreateDecryptor(), CryptoStreamMode.Read, leaveOpen: true))
-#endif
+////#if NET471
+////                Stream originalInputStream = inputStream;
+////                inputStream = new MemoryStream();
+////                originalInputStream.CopyTo(inputStream);
+////#endif
+                using (var cs = new CryptoStream(inputStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
+
                 {
                     if (length.HasValue)
                     {
@@ -148,9 +156,6 @@ namespace LouveSystems.Cryptography
                             }
                         }
                     }
-#if NET471
-                    ////cs.FlushFinalBlock();
-#endif
                 }
             }
 

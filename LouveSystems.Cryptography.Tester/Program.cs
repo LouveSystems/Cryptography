@@ -58,6 +58,7 @@ namespace LouveSystems.Cryptography.Tester
                     chain.Decode(output, output2 = new MemoryStream());
                     bool success = Encoding.UTF8.GetString(output2.ToArray()) == testString;
                     Console.WriteLine($"{chain}: {(success ? "OK" : "ERROR")}");
+
                     if (!success)
                     {
                         Console.WriteLine(testString);
