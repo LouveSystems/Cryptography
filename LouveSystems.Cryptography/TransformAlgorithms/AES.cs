@@ -79,7 +79,7 @@ namespace LouveSystems.Cryptography
             try
             {
                 using (BinaryReader reader = new BinaryReader(inputStream)) {
-#if NET471
+#if NETSTANDARD2_0
                     MemoryStream net471MS;
                     using (net471MS = new MemoryStream()){
                         using (var cs = new CryptoStream(net471MS, aes.CreateEncryptor(), CryptoStreamMode.Write))
@@ -105,7 +105,7 @@ namespace LouveSystems.Cryptography
                             }
                         }
                     }
-#if NET471
+#if NETSTANDARD2_0
                         // Reopening stream to read...
                         using (var net471MS2 = new MemoryStream(net471MS.ToArray())){
                             net471MS2.CopyTo(outputStream);
